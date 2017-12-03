@@ -97,6 +97,26 @@ signal(SIGINT) { sig in
 let server = try Server(device: device, port: 0)
 server.start()
 
+func update(status value: Bool?) {
+    guard let set = value else { return }
+    DispatchQueue.global(qos: .utility).async {
+        let onOff = set ? "on" : "off"
+        let urlString = "http://\(host)/cgi-bin/relay.cgi?\(onOff)"
+        let url = URL(string: urlString)!
+        do { _ = try Data(contentsOf: url) } catch {
+            DispatchQueue.main.async { print("Cannot turn \(onOff) relay using \(urlString): \(error)") }
+        }
+    }
+}
+
+
+switch outlet {
+case let light as Accessory.Lightbulb: light.lightbulb.on.onValueChange.append(update)
+case let outlet as Accessory.Outlet: outlet.outlet.on.onValueChange.append(update)
+case let `switch` as Accessory.Switch: `switch`.switch.on.onValueChange.append(update)
+default: print("Cannot subscribe to changes for unknown accessory type '\(kind)'")
+}
+
 var checkingStatus = false
 while active {
     RunLoop.current.run(until: Date().addingTimeInterval(30))
