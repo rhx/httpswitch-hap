@@ -43,13 +43,14 @@ fileprivate func usage() -> Never {
     exit(EXIT_FAILURE)
 }
 
-while let result = get(options: "df:h:m:n:qs:S:t:v") {
+while let result = get(options: "df:h:k:m:n:qs:S:t:v") {
     let option = result.0
     let arg = result.1
     switch option {
     case "d": verbosity = 9
     case "f": version = arg!
     case "h": host = arg!
+    case "k": kind = AccessoryKind(rawValue: arg!)!
     case "m": vendor = arg!
     case "n": name = arg!
     case "q": verbosity  = 0
